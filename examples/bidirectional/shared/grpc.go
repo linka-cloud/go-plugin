@@ -6,10 +6,11 @@ package shared
 import (
 	"context"
 
-	hclog "github.com/hashicorp/go-hclog"
-	plugin "github.com/hashicorp/go-plugin"
-	"github.com/hashicorp/go-plugin/examples/bidirectional/proto"
+	"github.com/hashicorp/go-hclog"
 	"google.golang.org/grpc"
+
+	"github.com/hashicorp/go-plugin"
+	"github.com/hashicorp/go-plugin/examples/bidirectional/proto"
 )
 
 // GRPCClient is an implementation of KV that talks over RPC.
@@ -22,7 +23,7 @@ func (m *GRPCClient) Put(key string, value int64, a AddHelper) error {
 	addHelperServer := &GRPCAddHelperServer{Impl: a}
 
 	var s *grpc.Server
-	serverFunc := func(opts []grpc.ServerOption) *grpc.Server {
+	serverFunc := func(opts []grpc.ServerOption) plugin.GRPCServerInterface {
 		s = grpc.NewServer(opts...)
 		proto.RegisterAddHelperServer(s, addHelperServer)
 

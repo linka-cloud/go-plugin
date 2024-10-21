@@ -8,10 +8,11 @@ import (
 	"reflect"
 	"testing"
 
-	grpctest "github.com/hashicorp/go-plugin/test/grpc"
 	"github.com/jhump/protoreflect/grpcreflect"
 	"google.golang.org/grpc"
 	reflectpb "google.golang.org/grpc/reflection/grpc_reflection_v1alpha"
+
+	grpctest "github.com/hashicorp/go-plugin/test/grpc"
 )
 
 func TestGRPC_App(t *testing.T) {
@@ -163,7 +164,7 @@ func testGRPCClientReflection(t *testing.T, multiplex bool) {
 	}
 
 	// TODO: maybe only assert some specific services here to make test more resilient
-	expectedSvcs := []string{"grpc.health.v1.Health", "grpc.reflection.v1alpha.ServerReflection", "grpctest.Test", "plugin.GRPCBroker", "plugin.GRPCController", "plugin.GRPCStdio"}
+	expectedSvcs := []string{"grpc.health.v1.Health", "grpc.reflection.v1.ServerReflection", "grpc.reflection.v1alpha.ServerReflection", "grpctest.Test", "plugin.GRPCBroker", "plugin.GRPCController", "plugin.GRPCStdio"}
 
 	if !reflect.DeepEqual(svcs, expectedSvcs) {
 		t.Fatalf("expected: %v\ngot: %v", expectedSvcs, svcs)

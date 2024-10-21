@@ -58,11 +58,11 @@ type KVGRPCPlugin struct {
 	Impl KV
 }
 
-func (p *KVGRPCPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+func (p *KVGRPCPlugin) GRPCServer(broker *plugin.GRPCBroker, s plugin.GRPCServerInterface) error {
 	proto.RegisterKVServer(s, &GRPCServer{Impl: p.Impl})
 	return nil
 }
 
-func (p *KVGRPCPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p *KVGRPCPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c grpc.ClientConnInterface) (interface{}, error) {
 	return &GRPCClient{client: proto.NewKVClient(c)}, nil
 }

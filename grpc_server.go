@@ -11,15 +11,25 @@ import (
 	"io"
 	"net"
 
-	hclog "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-plugin/internal/grpcmux"
-	"github.com/hashicorp/go-plugin/internal/plugin"
+	"github.com/hashicorp/go-hclog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/hashicorp/go-plugin/internal/grpcmux"
+	"github.com/hashicorp/go-plugin/internal/plugin"
 )
+
+// GRPCServerInterface is an interface that represents the gRPC server
+type GRPCServerInterface interface {
+	RegisterService(*grpc.ServiceDesc, interface{})
+	GetServiceInfo() map[string]grpc.ServiceInfo
+	Serve(net.Listener) error
+	Stop()
+	GracefulStop()
+}
 
 // GRPCServiceName is the name of the service that the health check should
 // return as passing.
@@ -27,7 +37,7 @@ const GRPCServiceName = "plugin"
 
 // DefaultGRPCServer can be used with the "GRPCServer" field for Server
 // as a default factory method to create a gRPC server with no extra options.
-func DefaultGRPCServer(opts []grpc.ServerOption) *grpc.Server {
+func DefaultGRPCServer(opts []grpc.ServerOption) GRPCServerInterface {
 	return grpc.NewServer(opts...)
 }
 
@@ -42,7 +52,7 @@ type GRPCServer struct {
 
 	// Server is the actual server that will accept connections. This
 	// will be used for plugin registration as well.
-	Server func([]grpc.ServerOption) *grpc.Server
+	Server func([]grpc.ServerOption) GRPCServerInterface
 
 	// TLS should be the TLS configuration if available. If this is nil,
 	// the connection will not have transport security.
@@ -57,7 +67,7 @@ type GRPCServer struct {
 	Stderr io.Reader
 
 	config      GRPCServerConfig
-	server      *grpc.Server
+	server      GRPCServerInterface
 	broker      *GRPCBroker
 	stdioServer *grpcStdioServer
 

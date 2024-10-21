@@ -20,9 +20,10 @@ import (
 	"strconv"
 	"strings"
 
-	hclog "github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/go-plugin/internal/grpcmux"
+	"github.com/hashicorp/go-hclog"
 	"google.golang.org/grpc"
+
+	"github.com/hashicorp/go-plugin/internal/grpcmux"
 )
 
 // CoreProtocolVersion is the ProtocolVersion of the plugin system itself.
@@ -83,7 +84,7 @@ type ServeConfig struct {
 	// Note that the grpc.Server will automatically be registered with
 	// the gRPC health checking service. This is not optional since go-plugin
 	// relies on this to implement Ping().
-	GRPCServer func([]grpc.ServerOption) *grpc.Server
+	GRPCServer func([]grpc.ServerOption) GRPCServerInterface
 
 	// Logger is used to pass a logger into the server. If none is provided the
 	// server will create a default logger.

@@ -376,7 +376,7 @@ func (b *GRPCBroker) Accept(id uint32) (net.Listener, error) {
 // connection is opened every call, these calls should be used sparingly.
 // Multiple gRPC server implementations can be registered to a single
 // AcceptAndServe call.
-func (b *GRPCBroker) AcceptAndServe(id uint32, newGRPCServer func([]grpc.ServerOption) *grpc.Server) {
+func (b *GRPCBroker) AcceptAndServe(id uint32, newGRPCServer func([]grpc.ServerOption) GRPCServerInterface) {
 	ln, err := b.Accept(id)
 	if err != nil {
 		log.Printf("[ERR] plugin: plugin acceptAndServe error: %s", err)

@@ -45,7 +45,7 @@ type CounterPlugin struct {
 	Impl Counter
 }
 
-func (p *CounterPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) error {
+func (p *CounterPlugin) GRPCServer(broker *plugin.GRPCBroker, s plugin.GRPCServerInterface) error {
 	proto.RegisterCounterServer(s, &GRPCServer{
 		Impl:   p.Impl,
 		broker: broker,
@@ -53,7 +53,7 @@ func (p *CounterPlugin) GRPCServer(broker *plugin.GRPCBroker, s *grpc.Server) er
 	return nil
 }
 
-func (p *CounterPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p *CounterPlugin) GRPCClient(ctx context.Context, broker *plugin.GRPCBroker, c grpc.ClientConnInterface) (interface{}, error) {
 	return &GRPCClient{
 		client: proto.NewCounterClient(c),
 		broker: broker,

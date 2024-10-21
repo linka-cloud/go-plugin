@@ -20,8 +20,9 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/hashicorp/go-hclog"
-	grpctest "github.com/hashicorp/go-plugin/test/grpc"
 	"google.golang.org/grpc"
+
+	grpctest "github.com/hashicorp/go-plugin/test/grpc"
 )
 
 // Test that NetRPCUnsupportedPlugin implements the correct interfaces.
@@ -99,12 +100,12 @@ func (p *testGRPCInterfacePlugin) Client(b *MuxBroker, c *rpc.Client) (interface
 	return &testInterfaceClient{Client: c}, nil
 }
 
-func (p *testGRPCInterfacePlugin) GRPCServer(b *GRPCBroker, s *grpc.Server) error {
+func (p *testGRPCInterfacePlugin) GRPCServer(b *GRPCBroker, s GRPCServerInterface) error {
 	grpctest.RegisterTestServer(s, &testGRPCServer{broker: b, Impl: p.impl()})
 	return nil
 }
 
-func (p *testGRPCInterfacePlugin) GRPCClient(doneCtx context.Context, b *GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+func (p *testGRPCInterfacePlugin) GRPCClient(doneCtx context.Context, b *GRPCBroker, c grpc.ClientConnInterface) (interface{}, error) {
 	return &testGRPCClient{broker: b, Client: grpctest.NewTestClient(c)}, nil
 }
 
@@ -263,7 +264,7 @@ func (s *testGRPCServer) Bidirectional(ctx context.Context, req *grpctest.Bidire
 	}
 
 	nextID := s.broker.NextId()
-	go s.broker.AcceptAndServe(nextID, func(opts []grpc.ServerOption) *grpc.Server {
+	go s.broker.AcceptAndServe(nextID, func(opts []grpc.ServerOption) GRPCServerInterface {
 		s := grpc.NewServer(opts...)
 		grpctest.RegisterPingPongServer(s, &pingPongServer{})
 		return s
@@ -351,7 +352,7 @@ func (c *testGRPCClient) PrintKV(key string, value interface{}) {
 
 func (c *testGRPCClient) Bidirectional() error {
 	nextID := c.broker.NextId()
-	go c.broker.AcceptAndServe(nextID, func(opts []grpc.ServerOption) *grpc.Server {
+	go c.broker.AcceptAndServe(nextID, func(opts []grpc.ServerOption) GRPCServerInterface {
 		s := grpc.NewServer(opts...)
 		grpctest.RegisterPingPongServer(s, &pingPongServer{})
 		return s
